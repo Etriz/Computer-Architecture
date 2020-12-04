@@ -4,8 +4,8 @@ import sys
 
 # op-codes
 LDI = 0b10000010  # 130
-PRN = 71
-HLT = 1
+PRN = 0b01000111  # 71
+HLT = 0b00000001  # 1
 
 
 class CPU:
@@ -24,7 +24,8 @@ class CPU:
         self.reg[7] = 0xF4
         self.PC = 0
         self.FL = 0
-        self.ram = dict()
+        self.ram = [0] * 256
+        self.halted = False
 
     def load(self):
         """Load a program into memory."""
@@ -80,18 +81,28 @@ class CPU:
 
         print()
 
+    def ram_read(self, address):
+        return self.ram[address]
+
+    def ram_write(self, value, address):
+        self.ram[address] = value
+
     def run(self):
         """Run the CPU."""
-        while self.PC < len(self.ram):
-            op = self.ram[self.PC]
+        while not self.halted:
+            op = self.ram_read(self.PC)
             if op == LDI:
-                self.reg[self.ram[self.PC + 1]] = self.ram[self.PC + 2]
+                self.reg[self.ram_read(self.PC + 1)] = self.ram_read(self.PC + 2)
                 print("LDI success")
                 self.PC += 3
             elif op == PRN:
-                key = self.ram[self.PC + 1]
+                key = self.reg[self.PC + 1]
                 print(f"value is {self.reg[key]}")
                 self.PC += 2
             elif op == HLT:
                 print("Program Halted")
-                sys.exit(0)
+                self.halted = True
+                # sys.exit(0)
+            else:
+                print("Error: not a valid instruction")
+                pass
