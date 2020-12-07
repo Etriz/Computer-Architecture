@@ -101,14 +101,15 @@ class CPU:
         """Run the CPU."""
         while not self.halted:
             op = self.ram_read(self.PC)
+            counter_advance = op >> 6
             if op == LDI:
-                self.reg[self.ram_read(self.PC + 1)] = self.ram_read(self.PC + 2)
+                cmd_a = self.ram_read(self.PC + 1)
+                cmd_b = self.ram_read(self.PC + 2)
+                self.reg[cmd_a] = cmd_b
                 print("LDI success")
-                self.PC += 3
             elif op == PRN:
                 key = self.reg[self.PC + 1]
                 print(f"value is {self.reg[key]}")
-                self.PC += 2
             elif op == HLT:
                 print("Program Halted")
                 self.halted = True
@@ -116,3 +117,4 @@ class CPU:
             else:
                 print("Error: not a valid instruction")
                 break
+            self.PC += counter_advance + 1
