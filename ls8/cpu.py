@@ -13,13 +13,6 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        # self.R0 = 0
-        # self.R1 = 0
-        # self.R2 = 0
-        # self.R3 = 0
-        # self.R4 = 0
-        # self.R5 = 0
-        # self.R6 = 0
         self.reg = [0] * 8
         self.reg[7] = 0xF4
         self.PC = 0
@@ -27,9 +20,25 @@ class CPU:
         self.ram = [0] * 256
         self.halted = False
 
-    def load(self):
+    def load(self, filename):
         """Load a program into memory."""
 
+        try:
+            with open(filename) as f:
+                address = 0
+                for line in f:
+                    line_split = line.split("#")
+                    try:
+                        binary_num = int(line_split[0], 2)
+                        # print(binary_num)
+                        self.ram[address] = binary_num
+                        address += 1
+                    except:
+                        print("failed to make binary")
+        except FileNotFoundError:
+            print("File not found ...")
+
+        """
         address = 0
 
         # For now, we've just hardcoded a program:
@@ -47,6 +56,7 @@ class CPU:
         for instruction in program:
             self.ram[address] = instruction
             address += 1
+        """
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -105,4 +115,4 @@ class CPU:
                 # sys.exit(0)
             else:
                 print("Error: not a valid instruction")
-                pass
+                break
