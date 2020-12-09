@@ -35,7 +35,6 @@ class CPU:
                         binary_num = int(line_split[0], 2)
                         # print(binary_num)
                         self.ram_write(binary_num, address)
-                        # self.ram[address] = binary_num
                         address += 1
                     except:
                         # can silently fail instead of making a print statement
@@ -121,8 +120,16 @@ class CPU:
             elif op == MUL:
                 self.alu("MUL", cmd_a, cmd_b)
                 # self.reg[cmd_a] *= self.reg[cmd_b]
+            elif op == PUSH:
+                self.reg[7] -= 1
+                self.ram_write(self.reg[cmd_a], self.reg[7])
+            elif op == POP:
+                self.reg[cmd_a] = self.ram_read(self.reg[7])
+                self.reg[7] += 1
             elif op == HLT:
                 print("Program Halted")
+                # print(f"ram: {self.ram}")
+                # print(f"regs: {self.reg}")
                 self.halted = True
                 # sys.exit(0)
             else:
