@@ -5,7 +5,11 @@
 import sys
 from cpu import *
 
-cpu = CPU()
+if len(sys.argv) != 2:
+    print("Must provide a filename")
+else:
 
-cpu.load(sys.argv[1])
-cpu.run()
+    cpu = CPU()
+
+    cpu.load(sys.argv[1])
+    cpu.run()

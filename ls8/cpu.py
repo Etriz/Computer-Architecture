@@ -6,6 +6,9 @@ import sys
 LDI = 0b10000010  # 130
 PRN = 0b01000111  # 71
 HLT = 0b00000001  # 1
+MUL = 0b10100010
+PUSH = 0b01000101
+POP = 0b01000110
 
 
 class CPU:
@@ -31,10 +34,13 @@ class CPU:
                     try:
                         binary_num = int(line_split[0], 2)
                         # print(binary_num)
-                        self.ram[address] = binary_num
+                        self.ram_write(binary_num, address)
+                        # self.ram[address] = binary_num
                         address += 1
                     except:
-                        print("failed to make binary")
+                        # can silently fail instead of making a print statement
+                        # print("failed to make binary")
+                        continue
         except FileNotFoundError:
             print("File not found ...")
 
@@ -64,6 +70,8 @@ class CPU:
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         # elif op == "SUB": etc
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -102,14 +110,17 @@ class CPU:
         while not self.halted:
             op = self.ram_read(self.PC)
             counter_advance = op >> 6
+            cmd_a = self.ram_read(self.PC + 1)
+            cmd_b = self.ram_read(self.PC + 2)
+
             if op == LDI:
-                cmd_a = self.ram_read(self.PC + 1)
-                cmd_b = self.ram_read(self.PC + 2)
                 self.reg[cmd_a] = cmd_b
-                print("LDI success")
+                # print("LDI success")
             elif op == PRN:
-                key = self.reg[self.PC + 1]
-                print(f"value is {self.reg[key]}")
+                print(self.reg[cmd_a])
+            elif op == MUL:
+                self.alu("MUL", cmd_a, cmd_b)
+                # self.reg[cmd_a] *= self.reg[cmd_b]
             elif op == HLT:
                 print("Program Halted")
                 self.halted = True
