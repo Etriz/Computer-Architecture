@@ -9,6 +9,9 @@ HLT = 0b00000001  # 1
 MUL = 0b10100010
 PUSH = 0b01000101
 POP = 0b01000110
+CALL = 0b01010000
+RET = 0b00010001
+ADD = 0b10100000
 
 
 class CPU:
@@ -117,6 +120,8 @@ class CPU:
                 # print("LDI success")
             elif op == PRN:
                 print(self.reg[cmd_a])
+            elif op == ADD:
+                self.alu("ADD", cmd_a, cmd_b)
             elif op == MUL:
                 self.alu("MUL", cmd_a, cmd_b)
                 # self.reg[cmd_a] *= self.reg[cmd_b]
@@ -132,6 +137,18 @@ class CPU:
                 # print(f"regs: {self.reg}")
                 self.halted = True
                 # sys.exit(0)
+            elif op == CALL:
+                # stores the address of next instruction on top of the stack
+                self.reg[7] -= 1
+                self.ram_write(self.PC + 2, self.reg[7])
+                # it jumps to the address stored in that register
+                self.PC = self.reg[cmd_a]
+                counter_advance -= 2  # adjust becuase we are going right to the address
+            elif op == RET:
+                # doesn't take in any operands, sets the program counter to the topmost element of the stack and pop it
+                self.PC = self.ram_read(self.reg[7])
+                self.reg[7] += 1
+                counter_advance -= 1  # adjust becuase we are going right to the address
             else:
                 print("Error: not a valid instruction")
                 break
